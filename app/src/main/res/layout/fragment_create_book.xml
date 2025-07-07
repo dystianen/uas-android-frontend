@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:padding="16dp"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <EditText android:id="@+id/etTitle" android:hint="Judul Buku"
+        android:layout_width="match_parent" android:layout_height="wrap_content"/>
+
+    <EditText android:id="@+id/etAuthor" android:hint="Penulis"
+        android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp"/>
+
+    <EditText android:id="@+id/etPublishedDate" android:hint="Tanggal Terbit (YYYY-MM-DD)"
+        android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp"/>
+
+    <ImageView
+        android:id="@+id/imgCover"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        android:background="@android:color/darker_gray"
+        android:contentDescription="Cover preview"/>
+
+    <Button
+        android:id="@+id/btnPickImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pilih Gambar Cover"
+        android:layout_marginTop="8dp"/>
+
+    <Button android:id="@+id/btnSave" android:text="Simpan Buku"
+        android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp"/>
+</LinearLayout>
+
