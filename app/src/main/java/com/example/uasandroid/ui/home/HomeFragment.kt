@@ -18,20 +18,31 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+// Fragment untuk halaman Home yang menampilkan daftar buku
 class HomeFragment : Fragment() {
+    // Komponen RecyclerView untuk menampilkan data
     private lateinit var rvBooks: RecyclerView
+    // Instance API dari Retrofit
     private val api = ApiClient.getApiService()
+    // List buku yang akan ditampilkan
     private var books: MutableList<Book> = mutableListOf()
+    // Adapter untuk RecyclerView
     private lateinit var bookAdapter: BookAdapter
 
+    // Membuat tampilan fragment dan inisialisasi RecyclerView
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
+
+        // Inisialisasi RecyclerView
         rvBooks = view.findViewById(R.id.rvBooks)
         rvBooks.layoutManager = LinearLayoutManager(requireContext())
+
+        // Tambahkan garis pemisah antar item
         rvBooks.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
 
+        // Load data buku dari API
         loadBooks()
         return view
     }
