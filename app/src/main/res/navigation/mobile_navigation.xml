@@ -15,7 +15,13 @@
         android:id="@+id/navigation_create_book"
         android:name="com.example.uasandroid.ui.create.CreateBookFragment"
         android:label="@string/title_create_book"
-        tools:layout="@layout/fragment_create_book" />
+        tools:layout="@layout/fragment_create_book">
+
+        <argument
+            android:name="book"
+            app:argType="com.example.uasandroid.model.Book"
+            app:nullable="true" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_profile"

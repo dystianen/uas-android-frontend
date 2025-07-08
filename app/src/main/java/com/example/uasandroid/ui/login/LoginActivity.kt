@@ -12,6 +12,7 @@ import com.example.uasandroid.api.ApiService
 import com.example.uasandroid.databinding.ActivityLoginBinding
 import com.example.uasandroid.model.LoginRequest
 import com.example.uasandroid.model.LoginResponse
+import com.example.uasandroid.ui.register.RegisterActivity
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -52,6 +53,7 @@ class LoginActivity : AppCompatActivity() {
                     if (response.isSuccessful && response.body()?.status == true) {
                         sharedPref.edit().apply {
                             putBoolean("isLoggedIn", true)
+                            putString("name", response.body()?.data?.name)
                             putString("email", email)
                             apply()
                         }
@@ -66,6 +68,11 @@ class LoginActivity : AppCompatActivity() {
                     Toast.makeText(this@LoginActivity, "Terjadi kesalahan: ${t.message}", Toast.LENGTH_SHORT).show()
                 }
             })
+        }
+
+        binding.tvRegister.setOnClickListener {
+            val intent = Intent(this, RegisterActivity::class.java)
+            startActivity(intent)
         }
     }
 }

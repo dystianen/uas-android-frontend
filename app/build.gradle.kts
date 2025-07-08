@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("kotlin-kapt")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -57,5 +58,6 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.glide)
     implementation(libs.fragment)
+
     kapt(libs.glide.compiler)
 }

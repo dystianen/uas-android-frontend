@@ -8,8 +8,12 @@ import android.provider.OpenableColumns
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.example.uasandroid.R
 import com.example.uasandroid.api.ApiClient
+import com.example.uasandroid.model.Book
+import com.example.uasandroid.utils.Constants
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -32,7 +36,12 @@ class CreateBookFragment : Fragment() {
     private val api = ApiClient.getApiService()
     private val PICK_IMAGE_REQUEST = 1001
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    private var bookToEdit: Book? = null
+    private var isPrefilled = false
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
         val view = inflater.inflate(R.layout.fragment_create_book, container, false)
 
         etTitle = view.findViewById(R.id.etTitle)
@@ -55,23 +64,62 @@ class CreateBookFragment : Fragment() {
         return view
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val tvTitle = view.findViewById<TextView>(R.id.tvCreateEditBooks)
+
+        bookToEdit = arguments?.getParcelable("book")
+        if (bookToEdit != null) {
+            tvTitle.text = "Edit Book"
+            val book = bookToEdit!!
+            etTitle.setText(book.title)
+            etAuthor.setText(book.author)
+            etPublishedDate.setText(book.published_date)
+
+            val imageUrl = "${Constants.BASE_URL}/uploads/covers/${book.cover}"
+            Glide.with(requireContext())
+                .load(imageUrl)
+                .placeholder(R.drawable.ic_launcher_background)
+                .into(imgCover)
+
+            btnSave.text = "Update"
+            isPrefilled = true
+        } else {
+            tvTitle.text = "Create Book"
+        }
+    }
+
+
     private fun submitForm() {
         val title = etTitle.text.toString()
         val author = etAuthor.text.toString()
         val publishedDate = etPublishedDate.text.toString()
 
-        if (title.isEmpty() || author.isEmpty() || publishedDate.isEmpty() || selectedImageUri == null) {
-            Toast.makeText(requireContext(), "Semua field termasuk cover harus diisi", Toast.LENGTH_SHORT).show()
+        if (title.isEmpty() || author.isEmpty() || publishedDate.isEmpty()) {
+            Toast.makeText(requireContext(), "Semua field harus diisi", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val file = uriToFile(selectedImageUri!!)
+        if (bookToEdit != null) {
+            updateBook(bookToEdit!!.book_id, title, author, publishedDate, selectedImageUri)
+        } else {
+            if (selectedImageUri == null) {
+                Toast.makeText(requireContext(), "Gambar cover harus dipilih", Toast.LENGTH_SHORT).show()
+                return
+            }
+            createBook(title, author, publishedDate, selectedImageUri!!)
+        }
+    }
+
+    private fun createBook(title: String, author: String, date: String, imageUri: Uri) {
+        val file = uriToFile(imageUri)
         val requestImage = RequestBody.create("image/*".toMediaTypeOrNull(), file)
         val imagePart = MultipartBody.Part.createFormData("cover", file.name, requestImage)
 
         val titleBody = RequestBody.create("text/plain".toMediaTypeOrNull(), title)
         val authorBody = RequestBody.create("text/plain".toMediaTypeOrNull(), author)
-        val dateBody = RequestBody.create("text/plain".toMediaTypeOrNull(), publishedDate)
+        val dateBody = RequestBody.create("text/plain".toMediaTypeOrNull(), date)
 
         api.createBookWithImage(titleBody, authorBody, dateBody, imagePart).enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
@@ -89,12 +137,44 @@ class CreateBookFragment : Fragment() {
         })
     }
 
+    private fun updateBook(bookId: String, title: String, author: String, date: String, imageUri: Uri?) {
+        val titleBody = RequestBody.create("text/plain".toMediaTypeOrNull(), title)
+        val authorBody = RequestBody.create("text/plain".toMediaTypeOrNull(), author)
+        val dateBody = RequestBody.create("text/plain".toMediaTypeOrNull(), date)
+
+        val imagePart = imageUri?.let {
+            val file = uriToFile(it)
+            val requestImage = RequestBody.create("image/*".toMediaTypeOrNull(), file)
+            MultipartBody.Part.createFormData("cover", file.name, requestImage)
+        }
+
+        api.updateBookWithImage(bookId, titleBody, authorBody, dateBody, imagePart).enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (response.isSuccessful) {
+                    Toast.makeText(requireContext(), "Buku berhasil diperbarui", Toast.LENGTH_SHORT).show()
+                    requireActivity().runOnUiThread {
+                        findNavController().navigate(R.id.navigation_home)
+                    }
+                } else {
+                    Toast.makeText(requireContext(), "Gagal update: ${response.code()}", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Toast.makeText(requireContext(), "Error: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
     private fun clearForm() {
         etTitle.text.clear()
         etAuthor.text.clear()
         etPublishedDate.text.clear()
         selectedImageUri = null
         imgCover.setImageResource(android.R.color.darker_gray)
+        btnSave.text = "Simpan"
+        isPrefilled = false
+        bookToEdit = null
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

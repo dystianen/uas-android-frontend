@@ -1,5 +1,9 @@
 package com.example.uasandroid.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class Book(
     val book_id: String,
     val title: String,
@@ -9,4 +13,4 @@ data class Book(
     val created_at: String?,
     val updated_at: String?,
     val deleted_at: String?
-)
+) : Parcelable

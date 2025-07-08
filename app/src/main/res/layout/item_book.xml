@@ -1,11 +1,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="12dp"
+    android:paddingVertical="12dp"
     android:background="?attr/selectableItemBackground"
     android:gravity="center_vertical">
 
+    <!-- Gambar Cover -->
     <ImageView
         android:id="@+id/imgCover"
         android:layout_width="50dp"
@@ -13,6 +15,7 @@
         android:scaleType="centerCrop"
         android:background="@android:color/darker_gray" />
 
+    <!-- Info Buku -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -27,7 +30,6 @@
             android:layout_height="wrap_content"
             android:text="Judul Buku"
             android:textStyle="bold"
-            android:textColor="#FFFFFF"
             android:textSize="16sp" />
 
         <TextView
@@ -35,7 +37,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="by Penulis"
-            android:textColor="#CCCCCC"
             android:textSize="14sp" />
 
         <TextView
@@ -45,6 +46,15 @@
             android:text="Terbit: YYYY-MM-DD"
             android:textColor="#AAAAAA"
             android:textSize="12sp" />
-
     </LinearLayout>
+
+    <!-- Tombol Delete -->
+    <ImageButton
+        android:id="@+id/btnDelete"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_delete"
+        android:contentDescription="Hapus Buku"
+        app:tint="@android:color/holo_red_dark" />
 </LinearLayout>
