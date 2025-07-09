@@ -47,38 +47,47 @@ class HomeFragment : Fragment() {
         return view
     }
 
+    // Navigasi ke halaman Edit Book (CreateBookFragment dengan mode edit)
     private fun navigateToEdit(book: Book) {
+        // Siapkan bundle untuk dikirim ke fragment tujuan
         val bundle = Bundle().apply {
             putParcelable("book", book)
         }
         requireActivity().supportFragmentManager.setFragmentResult("edit_request", bundle)
 
+        // Kirim bundle ke fragment tujuan dan navigasi ke halaman create/edit
         val navController = requireActivity().findNavController(R.id.nav_host_fragment_activity_main)
         navController.navigate(R.id.navigation_create_book, bundle)
     }
 
-
+    // Memuat daftar buku dari server menggunakan Retrofit
     private fun loadBooks() {
         api.getBooks().enqueue(object : Callback<List<Book>> {
             override fun onResponse(call: Call<List<Book>>, response: Response<List<Book>>) {
                 if (response.isSuccessful) {
+                    // Ubah response menjadi list yang bisa diedit
                     books = response.body()?.toMutableList() ?: mutableListOf()
+
+                    // Inisialisasi adapter dengan data dan callback
                     bookAdapter = BookAdapter(
                         books,
-                        onDeleteClick = { book -> confirmDelete(book) },
-                        onItemClick = { book -> navigateToEdit(book) }
+                        onDeleteClick = { book -> confirmDelete(book) }, // Hapus buku
+                        onItemClick = { book -> navigateToEdit(book) } // Edit buku
                     )
+
+                    // Tampilkan adapter di RecyclerView
                     rvBooks.adapter = bookAdapter
                 }
             }
 
             override fun onFailure(call: Call<List<Book>>, t: Throwable) {
+                // Tampilkan error jika gagal mengambil data
                 Toast.makeText(requireContext(), "Gagal: ${t.message}", Toast.LENGTH_SHORT).show()
             }
         })
     }
 
-
+    // Tampilkan dialog konfirmasi sebelum menghapus buku
     private fun confirmDelete(book: Book) {
         AlertDialog.Builder(requireContext())
             .setTitle("Hapus Buku")
@@ -88,10 +97,12 @@ class HomeFragment : Fragment() {
             .show()
     }
 
+    // Hapus buku melalui API dan update tampilan
     private fun deleteBook(book: Book) {
         api.deleteBook(book.book_id).enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
+                    // Hapus item dari list dan refresh tampilan
                     books.remove(book)
                     bookAdapter.notifyDataSetChanged()
                     Toast.makeText(requireContext(), "Buku berhasil dihapus", Toast.LENGTH_SHORT).show()
